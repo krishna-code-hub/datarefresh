@@ -1,21 +1,49 @@
-databases:
-oracle:
-  host: oracle_host
-  port: 1521
-  service_name: ORCL
-  username: user
-  password: pass
+source:
+  oracle:
+    host: oracle_host
+    port: 1521
+    service_name: ORCL
+    username: user
+    password: pass
 
-sqlserver:
-  host: sqlserver_host
-  port: 1433
-  database: testdb
-  username: user
-  password: pass
+  sqlserver:
+    host: sqlserver_host
+    port: 1433
+    database: testdb
+    username: user
+    password: pass
 
-postgres:
-  host: postgres_host
-  port: 5432
-  database: postgresdb
-  username: user
-  password: pass
+  postgres:
+    host: postgres_host
+    port: 5432
+    database: postgresdb
+    username: user
+    password: pass
+
+  sqlite:
+    database: sqlite_source.db
+
+target:
+  oracle:
+    host: oracle_host
+    port: 1521
+    service_name: ORCL
+    username: user
+    password: pass
+
+  sqlserver:
+    host: sqlserver_host
+    port: 1433
+    database: testdb
+    username: user
+    password: pass
+
+  postgres:
+    host: postgres_host
+    port: 5432
+    database: postgresdb
+    username: user
+    password: pass
+
+  sqlite:
+    database: sqlite_target.db

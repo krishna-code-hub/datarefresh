@@ -2,8 +2,8 @@ import yaml
 import asyncio
 import logging
 import os
+import jinja2
 from FPE import FPE
-
 
 # Load PII Manifest
 def load_pii_manifest(file_path):
@@ -14,6 +14,16 @@ def load_pii_manifest(file_path):
         logging.error(f"PII manifest file not found: {str(e)}")
         raise
 
+# Replace Jinja parameters in the PII Manifest
+def replace_jinja_parameters(manifest, extraction_config):
+    try:
+        manifest_str = yaml.dump(manifest)
+        template = jinja2.Template(manifest_str)
+        rendered_manifest_str = template.render(**extraction_config)
+        return yaml.safe_load(rendered_manifest_str)
+    except Exception as e:
+        logging.error(f"Failed to replace Jinja parameters in PII manifest: {str(e)}")
+        raise
 
 # Masking Logic using FF1 or FF3-1 FPE
 async def apply_masking(data, columns, metadata):
@@ -39,40 +49,10 @@ async def apply_masking(data, columns, metadata):
         masked_data.append(masked_row)
     return masked_data
 
-
-# Async function for FF1 or FF3-1 encryption with various formats
-def fpe_encrypt_async(value, mode, format_type, tweak_length, key_env_var):
-    try:
-        tweak = FPE.generate_tweak(tweak_length)
-        key = os.getenv(key_env_var)
-        if not key:
-            raise ValueError(f"Environment variable {key_env_var} for FPE key not found")
-
-        if mode == 'FF1':
-            cipher = FPE.New(key, tweak, FPE.Mode.FF1)
-        elif mode == 'FF3-1':
-            cipher = FPE.New(key, tweak, FPE.Mode.FF3_1)
-        else:
-            raise ValueError(f"Unsupported FPE mode: {mode}")
-
-        # Select appropriate format
-        if format_type == 'DIGITS':
-            format_enum = FPE.Format.DIGITS
-        elif format_type == 'CREDITCARD':
-            format_enum = FPE.Format.CREDITCARD
-        elif format_type == 'LETTERS':
-            format_enum = FPE.Format.LETTERS
-        elif format_type == 'STRING':
-            format_enum = FPE.Format.STRING
-        elif format_type == 'EMAIL':
-            format_enum = FPE.Format.EMAIL
-        elif format_type == 'CPR':
-            format_enum = FPE.Format.CPR
-        else:
-            raise ValueError(f"Unsupported FPE format: {format_type}")
-
-        encrypted_value = cipher.encrypt(value, format_enum)
-        return asyncio.sleep(0, result=encrypted_value)
-    except Exception as e:
-        logging.error(f"FPE encryption failed ({mode} with {format_type}): {str(e)}")
-        raise
+async def fpe_encrypt_async(value, mode, format_type, tweak_length, key_env_var):
+    await asyncio.sleep(0)  # Simulate async behavior
+    # Fetch key from environment variable
+    key = os.getenv(key_env_var, 'default_key')
+    tweak = os.urandom(tweak_length)
+    cipher = FPE.New(key, tweak, getattr(FPE.Mode, mode))
+    return cipher.encrypt(value, getattr(FPE.Format, format_type))

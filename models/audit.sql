@@ -1,9 +1,8 @@
-CREATE TABLE masking_audit (
-    id SERIAL PRIMARY KEY,
-    table_name VARCHAR(255),
-    start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    end_time TIMESTAMP,
-    status VARCHAR(50),
-    rows_processed INT,
-    error_message TEXT
+CREATE TABLE audit (
+    audit_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    table_name TEXT NOT NULL,
+    operation TEXT NOT NULL,
+    old_value TEXT,
+    new_value TEXT,
+    operation_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 );

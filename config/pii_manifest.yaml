@@ -1,9 +1,13 @@
 metadata:
+  standard_masking_algorithm: sha2
   fpe:
-    mode: FF3-1  # Default mode for FPE (FF1 or FF3-1)
-    tweak_length: 8  # Length of the tweak value
-    key_length: 16  # Length of the encryption key
-    key_env_var: FPE_KEY  # Environment variable to retrieve the encryption key
+    mode: FF1 # Default mode for FPE (FF1 or FF3-1)
+    tweak_length: 8 # Length of the tweak value
+    key_length: 16 # Length of the encryption key
+    key_env_var: FPE_KEY # Environment variable to retrieve the encryption key
+  mode: extract_mask_load # Modes: upsert, extract_mask_load
+  source_db: sqlite # Source database type (oracle, sqlserver, postgres, sqlite)
+  target_db: sqlite # Target database type (oracle, sqlserver, postgres, sqlite)
 
 tables:
   - table_name: customer
@@ -11,10 +15,11 @@ tables:
       - column_name: customer_id
         pii: Y
         masking_algorithm:
-          type: fpe
-          format: LETTERS
+          type: tokenization
+          token_algorithm: string
           parameters:
             length: 10
+            prefix: "CUST"
       - column_name: email
         pii: Y
         masking_algorithm:
@@ -30,7 +35,7 @@ tables:
         pre_masking_logic: "CONCAT(first_name, ' ', last_name)"
     extraction_logic:
       where_clause: |
-        WHERE updated_at >= '{{ execution_date.subtract(days=7).strftime("%Y-%m-%d") }}'
+        updated_at >= '{{ execution_date.subtract(days=7).strftime("%Y-%m-%d") }}'
         AND status = 'active'
     derived_columns:
       - new_column_name: customer_age
