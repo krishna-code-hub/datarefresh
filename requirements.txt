@@ -1,0 +1,6 @@
+cx_Oracle
+pyodbc
+PyYAML
+asyncio
+#FPE
+psycopg2
