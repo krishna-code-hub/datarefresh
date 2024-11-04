@@ -11,14 +11,8 @@ decrypted = c.decrypt(ciphertext)
 
 print(f"{plaintext} -> {ciphertext} -> {decrypted}")
 
-plaintext = "20200101"
-ciphertext = c.encrypt(plaintext)
-decrypted = c.decrypt(ciphertext)
-
-print(f"{plaintext} -> {ciphertext} -> {decrypted}")
-
-c6 = FF3Cipher.withCustomAlphabet(key, tweak, "abcdefghijklmnopqrstuvwxyz")
-plaintext = "krishnamoorthy"
+c6 = FF3Cipher.withCustomAlphabet(key, tweak, "ABCDEF")
+plaintext = "BADDCAFErty"
 ciphertext = c6.encrypt(plaintext)
 decrypted = c6.decrypt(ciphertext)
 

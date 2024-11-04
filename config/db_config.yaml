@@ -46,4 +46,4 @@ target:
     password: pass
 
   sqlite:
-    database: sqlite_target.db
+    database_path: "../data/customer_data.db"

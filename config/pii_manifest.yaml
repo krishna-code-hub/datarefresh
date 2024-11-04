@@ -1,42 +1,30 @@
 metadata:
-  standard_masking_algorithm: sha2
   fpe:
-    mode: FF1 # Default mode for FPE (FF1 or FF3-1)
-    tweak_length: 8 # Length of the tweak value
+    masking_type: ff3 # Library for masking FPE or ff3
+    tweak_length: CBD09280979564 # Adds randomness to ensure unique output for identical inputs
     key_length: 16 # Length of the encryption key
     key_env_var: FPE_KEY # Environment variable to retrieve the encryption key
-  mode: extract_mask_load # Modes: upsert, extract_mask_load
-  source_db: sqlite # Source database type (oracle, sqlserver, postgres, sqlite)
-  target_db: sqlite # Target database type (oracle, sqlserver, postgres, sqlite)
+  strategy: upsert
+  target_db: sqlite
+  source_db: sqlite
+  default_masking_algorithm: sha256  # Default masking algorithm for PII columns
 
 tables:
   - table_name: customer
+    schema: customer_schema
+    primary_key: customer_id
     columns:
       - column_name: customer_id
         pii: Y
         masking_algorithm:
-          type: tokenization
-          token_algorithm: string
-          parameters:
-            length: 10
-            prefix: "CUST"
+          type: fpe
+          fpe_format: STRING # Mask customer ID using FPE to maintain consistency
       - column_name: email
         pii: Y
         masking_algorithm:
           type: fpe
-          format: EMAIL
+          fpe_format: STRING # Mask email using FPE
       - column_name: birth_date
-        pii: N
+        pii: N  # No masking required
       - column_name: full_name
-        pii: Y
-        masking_algorithm:
-          type: fpe
-          format: LETTERS
-        pre_masking_logic: "CONCAT(first_name, ' ', last_name)"
-    extraction_logic:
-      where_clause: |
-        updated_at >= '{{ execution_date.subtract(days=7).strftime("%Y-%m-%d") }}'
-        AND status = 'active'
-    derived_columns:
-      - new_column_name: customer_age
-        sql_logic: "EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM birth_date)"
+        pii: N  # No masking required
